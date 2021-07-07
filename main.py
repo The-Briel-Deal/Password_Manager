@@ -3,6 +3,22 @@ from random import choice, randint
 from tkinter import messagebox
 import pyclip
 import json
+# ---------------------------- SEARCH ------------------------------- #
+
+
+def search_pass():
+    global entry_website
+    try:
+        with open(file="data.json", mode="r") as file:
+            data = json.load(file)
+            entry = entry_website.get()
+            messagebox.showinfo(title=f"{entry}", message=f"Your username is {data[entry]['email']}\nYour password is {data[entry]['password']}")
+    except KeyError:
+        messagebox.showinfo(title="Warning", message="That is not a website you have saved...")
+    except FileNotFoundError:
+        messagebox.showinfo(title="Warning", message="There is no JSON file")
+
+
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
 
@@ -29,7 +45,7 @@ def save_pass():
                     data = json.load(file)
                     data.update(new_data)
                     print(data)
-            except json.decoder.JSONDecodeError or FileNotFoundError:
+            except FileNotFoundError:
                 with open(file="data.json", mode="w") as file:
                     json.dump(new_data, file, indent=4)
             else:
@@ -40,6 +56,8 @@ def save_pass():
                 entry_password.delete(0, END)
     else:
         messagebox.showinfo("Warning!", "Please don't leave any fields blank!")
+
+
 # ---------------------------- GENERATE NEW PASSWORD ------------------------------- #
 
 
@@ -66,7 +84,7 @@ window.config(padx=20, pady=20)  # Set window padding to make it look fancier
 logo_img = PhotoImage(file="logo.png")  # Create the logo_img object with the png we have in the same directory
 
 # ---------------------------- canvas creation ------------------------------- #
-canvas = Canvas(height=200, width=140)  # Create the canvas object that we are going to put on the window object
+canvas = Canvas(height=200, width=140, highlightthickness=0)  # Create the canvas object
 canvas.create_image(70, 100, image=logo_img)  # Lay the logo_img right in the middle of the canvas
 
 # ---------------------------- label creation ------------------------------- #
@@ -75,19 +93,21 @@ label_username = Label(text="Email/Username:")  # Create label class object user
 label_password = Label(text="Password:")  # Create label class object password to display the text "Password:"
 
 # ---------------------------- field creation ------------------------------- #
-entry_website = Entry(width=32)
+entry_website = Entry(width=22)
 entry_username = Entry(width=32)
 entry_password = Entry(width=22)
 
 # ---------------------------- button creation ------------------------------- #
 button_generate_password = Button(text="Generate", font=("arial", 9), height=1, width=7, anchor="w")
 button_add = Button(text="Add", width=33, height=1, font=("arial", 9))  # This button is going to add the records to CSV
+button_search = Button(text="Search", font=("arial", 9), height=1, width=7, anchor="w")
 
 # ---------------------------- place the objects on the grid------------------------------- #
 canvas.grid(column=1, row=0)  # Place the canvas at 1,0
 
-label_website.grid(column=0, row=1, sticky="e")  # Place the label at 0,1
-entry_website.grid(column=1, row=1, sticky="w", columnspan=2)
+label_website.grid(column=0, row=1, sticky="se")  # Place the label at 0,1
+entry_website.grid(column=1, row=1, sticky="sw", columnspan=1)
+button_search.grid(column=2, row=1, sticky="w")
 
 label_username.grid(column=0, row=2, sticky="e")  # Place the label at 0,2
 entry_username.grid(column=1, row=2, sticky="w", columnspan=2)
@@ -102,6 +122,7 @@ button_add.grid(column=1, row=4, sticky="nw", columnspan=2)
 entry_username.insert(0, "gabe@fordltc.net")
 button_generate_password.config(command=generate_pass)
 button_add.config(command=save_pass)
+button_search.config(command=search_pass)
 
 # ---------------------------- main loop ------------------------------- #
 window.mainloop()
